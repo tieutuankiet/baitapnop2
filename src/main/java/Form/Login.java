@@ -1,5 +1,6 @@
 package Form;
 
+import Client.Client; // Import lớp Client
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -32,6 +33,7 @@ public class Login extends Application {
         Button registerButton = new Button("Đăng Ký");
         Label messageLabel = new Label();
 
+
         // Thêm các thành phần vào layout
         grid.add(usernameLabel, 0, 0);
         grid.add(usernameField, 1, 0);
@@ -42,37 +44,36 @@ public class Login extends Application {
         grid.add(portLabel, 0, 3);
         grid.add(portField, 1, 3);
         grid.add(loginButton, 0, 4);
-        grid.add(registerButton, 1, 4);
         grid.add(messageLabel, 0, 5, 2, 1);
+        grid.add(registerButton, 1, 4);
 
         // Thêm sự kiện cho nút đăng nhập
         loginButton.setOnAction(e -> {
-            String ip = ipField.getText();
-            String port = portField.getText();
             String username = usernameField.getText();
             String password = passwordField.getText();
+            String ip = ipField.getText();
+            String port = portField.getText();
 
             // Kiểm tra đăng nhập (ví dụ đơn giản)
             if (username.equals("admin") && password.equals("1234")) {
                 messageLabel.setText("Đăng nhập thành công!");
-                // Có thể thêm logic để kết nối server ở đây
+                primaryStage.close(); // Đóng cửa sổ đăng nhập
+                startClient(ip, Integer.parseInt(port)); // Khởi động client
             } else {
                 messageLabel.setText("Tên đăng nhập hoặc mật khẩu sai.");
             }
-        });
-
-        // Thêm sự kiện cho nút đăng ký
-        registerButton.setOnAction(e -> {
-            // Mở form đăng ký
-            Register registrationForm = new Register();
-            registrationForm.start(new Stage());
-            primaryStage.close(); // Đóng form đăng nhập
         });
 
         // Tạo và hiển thị scene
         Scene scene = new Scene(grid, 400, 350);
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    // Phương thức khởi động client
+    private void startClient(String ip, int port) {
+        Client client = new Client(ip, port);
+        client.start();
     }
 
     public static void main(String[] args) {
