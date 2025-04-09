@@ -1,4 +1,5 @@
 package Form;
+
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -6,6 +7,9 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -69,13 +73,9 @@ public class Register extends Application {
             if (username.isEmpty() || password.isEmpty() || fullName.isEmpty() || dob.isEmpty()) {
                 messageLabel.setText("Vui lòng điền tất cả các trường.");
             } else {
-                messageLabel.setText("Đăng ký thành công!"); // Ở đây bạn có thể thêm logic lưu trữ
-                // In thông tin đăng ký ra console (để kiểm tra)
-                System.out.println("Email: " + username);
-                System.out.println("Mật khẩu (hash): " + hashedPassword);
-                System.out.println("Họ tên: " + fullName);
-                System.out.println("Giới tính: " + gender);
-                System.out.println("Ngày sinh: " + dob);
+                // Lưu thông tin vào file
+                saveToFile(username, hashedPassword, fullName, gender, dob);
+                messageLabel.setText("Đăng ký thành công!");
             }
         });
 
@@ -98,6 +98,16 @@ public class Register extends Application {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    // Lưu thông tin vào file
+    private void saveToFile(String username, String hashedPassword, String fullName, String gender, String dob) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("users.txt", true))) {
+            writer.write(username + "," + hashedPassword + "," + fullName + "," + gender + "," + dob);
+            writer.newLine(); // Thêm dòng mới cho mỗi người dùng
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

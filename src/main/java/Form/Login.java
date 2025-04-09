@@ -33,7 +33,6 @@ public class Login extends Application {
         Button registerButton = new Button("Đăng Ký");
         Label messageLabel = new Label();
 
-
         // Thêm các thành phần vào layout
         grid.add(usernameLabel, 0, 0);
         grid.add(usernameField, 1, 0);
@@ -44,8 +43,8 @@ public class Login extends Application {
         grid.add(portLabel, 0, 3);
         grid.add(portField, 1, 3);
         grid.add(loginButton, 0, 4);
-        grid.add(messageLabel, 0, 5, 2, 1);
         grid.add(registerButton, 1, 4);
+        grid.add(messageLabel, 0, 5, 2, 1);
 
         // Thêm sự kiện cho nút đăng nhập
         loginButton.setOnAction(e -> {
@@ -54,14 +53,47 @@ public class Login extends Application {
             String ip = ipField.getText();
             String port = portField.getText();
 
-            // Kiểm tra đăng nhập (ví dụ đơn giản)
-            if (username.equals("admin") && password.equals("1234")) {
-                messageLabel.setText("Đăng nhập thành công!");
-                primaryStage.close(); // Đóng cửa sổ đăng nhập
-                startClient(ip, Integer.parseInt(port)); // Khởi động client
-            } else {
-                messageLabel.setText("Tên đăng nhập hoặc mật khẩu sai.");
+            // Kiểm tra cổng hợp lệ
+            if (!isValidPort(port)) {
+                messageLabel.setText("Cổng không hợp lệ. Vui lòng nhập từ 1024 đến 65535.");
+                return;
             }
+
+            // Khởi động client để đăng nhập
+            Client client = new Client(ip, Integer.parseInt(port));
+            client.login(username, password, response -> {
+                messageLabel.setText(response); // Hiển thị phản hồi từ server
+
+                // Nếu đăng nhập thành công, chuyển sang màn hình chính
+                if ("Đăng nhập thành công!".equals(response)) {
+                    primaryStage.close(); // Đóng cửa sổ đăng nhập
+                    MainAppScreen mainApp = new MainAppScreen(); // Tạo đối tượng màn hình chính
+                    try {
+                        mainApp.start(new Stage()); // Mở cửa sổ chính
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            });
+        });
+
+        // Thêm sự kiện cho nút đăng ký
+        registerButton.setOnAction(e -> {
+            String username = usernameField.getText();
+            String password = passwordField.getText();
+            String ip = ipField.getText();
+            String port = portField.getText();
+
+            // Kiểm tra cổng hợp lệ
+            if (!isValidPort(port)) {
+                messageLabel.setText("Cổng không hợp lệ. Vui lòng nhập từ 1024 đến 65535.");
+                return;
+            }
+
+            // Khởi động client để đăng ký
+            Client client = new Client(ip, Integer.parseInt(port));
+            String response = client.register(username, password);
+            messageLabel.setText(response); // Hiển thị phản hồi từ server
         });
 
         // Tạo và hiển thị scene
@@ -70,10 +102,14 @@ public class Login extends Application {
         primaryStage.show();
     }
 
-    // Phương thức khởi động client
-    private void startClient(String ip, int port) {
-        Client client = new Client(ip, port);
-        client.start();
+    // Hàm kiểm tra cổng hợp lệ
+    private boolean isValidPort(String port) {
+        try {
+            int portNumber = Integer.parseInt(port);
+            return portNumber >= 1024 && portNumber <= 65535;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
     public static void main(String[] args) {

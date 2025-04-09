@@ -48,7 +48,8 @@ public class ServerLauncher extends Application {
 
             // Khởi động server
             Server server = new Server(ip, Integer.parseInt(port));
-            server.start(messageLabel); // Gọi phương thức khởi động server
+            new Thread(() -> server.start()).start(); // Chạy server trong một luồng riêng
+            messageLabel.setText("Server đang chạy tại " + ip + ":" + port);
         });
 
         // Tạo và hiển thị scene
@@ -65,5 +66,9 @@ public class ServerLauncher extends Application {
         } catch (NumberFormatException e) {
             return false;
         }
+    }
+
+    public static void main(String[] args) {
+        launch(args);
     }
 }
